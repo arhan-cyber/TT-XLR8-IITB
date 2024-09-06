@@ -72,44 +72,6 @@ void applyMotorControl() {
   analogWrite(ENB, spd);
 }
 
-void loop() {
-  ping();
-  inches = microsecondsToInches(duration);
-  cm = microsecondsToCentimeters(duration);
-
-  Serial.print(inches);
-  Serial.print("in, ");
-  Serial.print(cm);
-  Serial.print("cm");
-  Serial.println();
-
-  if (cm > 10 && cm < 30) {
-    spd = 128;
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-  else if (cm > 30) {
-    spd = 255;
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-  else {
-    spd = 0;
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
-
-/* // Rotation from 0 to 180°.
-  for (int Angle = 0; Angle <= 180; Angle += 1) {
-    uServo.write(Angle);
-    delay(5);
-  }
-
-// Rotation from 180° to 0.
-  for (int Angle = 180; Angle >= 0; Angle -= 1) {
-    uServo.write(Angle);
-    delay(5);
-  } */
-
-}
-
 void ping() {
   digitalWrite(pingPin, LOW);
   delayMicroseconds(2);
@@ -126,3 +88,76 @@ long microsecondsToInches(long microseconds) {
 long microsecondsToCentimeters(long microseconds) {
    return microseconds / 29 / 2;
 }
+
+
+bool bot_cannot_continue = FALSE
+void loop() {
+  ping();
+  inches = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+
+  Serial.print(inches);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+
+  if (cm > 10 && cm < 30) {
+    bool bot_cannot_continue = FALSE;
+    spd = 128;
+    digitalWrite(LED_BUILTIN, LOW);
+  }
+  else if (cm > 30) {
+    bool bot_cannot_continue = FALSE;
+    spd = 255;
+    digitalWrite(LED_BUILTIN, LOW);
+  }
+  else {
+    bool bot_cannot_continue = TRUE;
+    spd = 0;
+    digitalWrite(LED_BUILTIN, HIGH);
+  }
+  if (bot_cannot_continue = TRUE) {
+    for (int Angle = 0; Angle <= 180; Angle += 10) {
+    uServo.write(Angle);
+    delay(5);
+    ping();
+     if (cm > 10 && cm < 30) {
+    bool bot_cannot_continue = FALSE;
+    digitalWrite(LED_BUILTIN, LOW);
+    turn_motor(Angle); /////// to be obtained from shivam
+    move_motor(speedLOW);
+  }
+  else if (cm > 30) {
+    bool bot_cannot_continue = FALSE;
+    move_motor(speedHIGH);
+    digitalWrite(LED_BUILTIN, LOW);
+  }
+  else {
+    bool bot_cannot_continue = TRUE;
+    digitalWrite(LED_BUILTIN, HIGH);
+
+  }
+
+
+int turn_motor(Angle) {
+
+}
+int move_motor(speedHIGH){
+    
+}
+
+/* // Rotation from 0 to 180°.
+  for (int Angle = 0; Angle <= 180; Angle += 1) {
+    uServo.write(Angle);
+    delay(5);
+  }
+
+// Rotation from 180° to 0.
+  for (int Angle = 180; Angle >= 0; Angle -= 1) {
+    uServo.write(Angle);
+    delay(5);
+  } */
+
+}
+
