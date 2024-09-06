@@ -1,38 +1,47 @@
 #include <Servo.h> 
+
+// Pin assignments for motor control
 const int servoPin = 14;
 const int ENA = 22;
 const int ENB = 17;
-const int IN1 = 18;
-const int IN2 = 19;
-const int IN3 = 20;
-const int IN4 = 21;
-int spd = 255;
-int cmd = 0; 
-long duration, inches, cm;
-const int pingPin = 26; // Trigger Pin of Ultrasonic Sensor
-const int echoPin = 27; // Echo Pin of Ultrasonic Sensor
+const int IN1 = 21;
+const int IN2 = 20;
+const int IN3 = 19;
+const int IN4 = 18;
+const int pingPin = 27; // Trigger Pin of Ultrasonic Sensor
+const int echoPin = 26; // Echo Pin of Ultrasonic Sensor
+const int calibratedTime = 1500;
+long duration;
+bool bot_cannot_continue = FALSE;
 
 // Create a servo object
 Servo uServo;
 
 void setup() {
+  // Start Serial for debugging
+  Serial.begin(115200);
+  // Configure motor control pins as outputs
+  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(ENA, OUTPUT);
-  pinMode(ENB, OUTPUT);
-
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
+  pinMode(ENB, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
-
   pinMode(pingPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  
+
   uServo.attach(servoPin, 400, 2600); // Minimum and maximum pulse width (in µs) to go from 0° to 180°.
   Serial.begin(115200); // Starting Serial Terminal
-  uServo.write(0);
+  uServo.write(90); // look in front
 }
 
-void applyMotorControl() {
+void applyMotorControl(int cmd, int spd) {
+  // Display motor control information
+  Serial.print("cmd: ");
+  Serial.print(cmd);   // Display motor command
+  Serial.print(", speed: ");
+  Serial.println(spd); // Display motor speed
   switch (cmd) {
     case 1:  // Forward
       digitalWrite(IN1, HIGH); 
@@ -65,99 +74,88 @@ void applyMotorControl() {
       digitalWrite(IN4, LOW); 
       spd = 0;
       break;
+    
   }
-
   // Apply the calculated motor speed to both motors
   analogWrite(ENA, spd);
   analogWrite(ENB, spd);
 }
 
-void ping() {
+
+int ping() {
   digitalWrite(pingPin, LOW);
   delayMicroseconds(2);
   digitalWrite(pingPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(pingPin, LOW);
   duration = pulseIn(echoPin, HIGH);
+  cm = microsecondsToCentimeters(duration);
+  return microsecondsToCentimeters(duration);
 }
 
-long microsecondsToInches(long microseconds) {
-   return microseconds / 74 / 2;
+
+void turnCar(int angle) {
+  if (angle > 90) { 
+    cmd = 3 //  clockwise
+    cmd = 3;
+  }
+  else if (angle < 90) { //anti-clockwise
+    cmd = 4;
+  }
+  else if (angle == 90) { //anti-clockwise
+    cmd = 1;
+  }
+  applyMotorControl(cmd, 255);
+  delay(calibratedTime*angle/360);
+  applyMotorControl(0, 0);
 }
+
 
 long microsecondsToCentimeters(long microseconds) {
    return microseconds / 29 / 2;
 }
 
-
-bool bot_cannot_continue = FALSE
 void loop() {
   ping();
-  inches = microsecondsToInches(duration);
-  cm = microsecondsToCentimeters(duration);
-
-  Serial.print(inches);
-  Serial.print("in, ");
-  Serial.print(cm);
-  Serial.print("cm");
-  Serial.println();
-
   if (cm > 10 && cm < 30) {
-    bool bot_cannot_continue = FALSE;
-    spd = 128;
+    bot_cannot_continue = FALSE;
+    // half speed
     digitalWrite(LED_BUILTIN, LOW);
+    applyMotorControl(1, 128);
   }
   else if (cm > 30) {
-    bool bot_cannot_continue = FALSE;
-    spd = 255;
+    bot_cannot_continue = FALSE;
+    // full speed
     digitalWrite(LED_BUILTIN, LOW);
+    applyMotorControl(1, 255);
   }
   else {
-    bool bot_cannot_continue = TRUE;
-    spd = 0;
+    bot_cannot_continue = TRUE;
+    applyMotorControl(0, 0);
     digitalWrite(LED_BUILTIN, HIGH);
   }
+  
+
   if (bot_cannot_continue = TRUE) {
     for (int Angle = 0; Angle <= 180; Angle += 10) {
-    uServo.write(Angle);
-    delay(5);
-    ping();
-     if (cm > 10 && cm < 30) {
-    bool bot_cannot_continue = FALSE;
-    digitalWrite(LED_BUILTIN, LOW);
-    turn_motor(Angle); /////// to be obtained from shivam
-    move_motor(speedLOW);
-  }
-  else if (cm > 30) {
-    bool bot_cannot_continue = FALSE;
-    move_motor(speedHIGH);
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-  else {
-    bool bot_cannot_continue = TRUE;
-    digitalWrite(LED_BUILTIN, HIGH);
+      uServo.write(Angle);
+      ping();
+      delay(5);
+      if (cm > 10 && cm < 30) {
+        bool bot_cannot_continue = FALSE;
+        digitalWrite(LED_BUILTIN, LOW);
+        turnCar(Angle);
+        applyMotorControl()
+      }   
+      else if (cm > 30) {
+        bool bot_cannot_continue = FALSE;
+        move_motor(speedHIGH);
+        digitalWrite(LED_BUILTIN, LOW);
+      }
+      else {
+        bool bot_cannot_continue = TRUE;
+        digitalWrite(LED_BUILTIN, HIGH);
+      }
 
-  }
 
-
-int turn_motor(Angle) {
-
-}
-int move_motor(speedHIGH){
-    
-}
-
-/* // Rotation from 0 to 180°.
-  for (int Angle = 0; Angle <= 180; Angle += 1) {
-    uServo.write(Angle);
-    delay(5);
-  }
-
-// Rotation from 180° to 0.
-  for (int Angle = 180; Angle >= 0; Angle -= 1) {
-    uServo.write(Angle);
-    delay(5);
-  } */
-
-}
 
