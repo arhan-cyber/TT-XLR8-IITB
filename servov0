@@ -1,0 +1,38 @@
+
+#include <Servo.h> 
+
+// Declare the Servo pin
+int servoPin = 14;
+// Create a servo object
+Servo uServo;
+
+void setup() {
+  uServo.attach(servoPin, 400, 2600); // Minimum and maximum pulse width (in µs) to go from 0° to 180°.
+}
+
+/* void loop(){
+  // Make servo go to 0 degrees
+  uServo.write(0);
+  delay(1000);
+  // Make servo go to 90 degrees
+  uServo.write(180);
+  delay(1000);
+  // Make servo go to 180 degrees
+  uServo.write(-180);
+  delay(1000);
+} */
+
+void loop() {
+ // Gradual Rotation from 0 to 180°.
+  for (int Angle = 0; Angle <= 180; Angle += 1) {
+    uServo.write(Angle);
+    delay(5);
+  }
+
+ // Rotation from 180° to 0.
+  for (int Angle = 180; Angle >= 0; Angle -= 1) {
+    uServo.write(Angle);
+    delay(5);
+  }
+/*   uServo.write(0); */ // determine origin
+}
