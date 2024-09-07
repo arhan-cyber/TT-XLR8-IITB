@@ -14,7 +14,7 @@ NOTE: ALL LIBRARIES COME PREINSTALLED IN YOUR ARDUINO IDE, YOU AREN'T EXPECTED T
 
 // SSID and password for the access point
 const char* ssid = "TT's Pico"; //Enter your team name as the SSID here
-const char* password = "Bigblackcoffee"; // Make a good password!
+const char* password = ; // Make a good password!
 
 // Define a structure to hold IMU (Inertial Measurement Unit) data
 typedef struct {
